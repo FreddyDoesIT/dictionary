@@ -1,19 +1,44 @@
 import { Meteor } from "meteor/meteor";
 import { Games } from "./games.js";
+import { Questions } from "../api/Questions.js";
 
 class GameLogic {
+
+	getRandomArrayElements(arr, num) {
+		var temp_array = new Array();
+		for (var index in arr) {
+			temp_array.push(arr[index]);
+		}
+		var return_array = new Array();
+		for (var i = 0; i < num; i++) {
+			if (temp_array.length > 0) {
+				var arrIndex = Math.floor(Math.random() * temp_array.length);
+				return_array[i] = temp_array[arrIndex];
+				temp_array.splice(arrIndex, 1);
+			} else {
+				break;
+			}
+		}
+		return return_array;
+	}
+
 	// start a new game
 	newGame() {
 		const game = Games.findOne({
 			$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId() }]
 		});
 
+		let questions = Questions.find({}).fetch();
+
+		let randomQuestions = this.getRandomArrayElements(questions, 10);
+
 		if (game === undefined) {
 			Games.insert({
 				player1: Meteor.userId(),
 				player2: "",
 				gameStatus: "waiting",
-				gameWinner: ""
+				gameWinner: "",
+				quiz: randomQuestions
 			});
 		}
 	}

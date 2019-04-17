@@ -28,7 +28,7 @@ class ChallengePage2 extends React.Component {
 					<Button positive onClick={this.handleClick.bind(this)}>
 						Play!
 					</Button>
-					<br/>
+					<br />
 					<p>
 						<span>Game Status</span> :{" "}
 						<span>{this.props.status}</span>
@@ -37,7 +37,11 @@ class ChallengePage2 extends React.Component {
 
 				<hr />
 
-				<ChallengeQuiz />
+				{this.props.status == "Game playing..." ? (
+					<ChallengeQuiz game={this.props.game} />
+				) : (
+					<div />
+				)}
 			</Container>
 		);
 	}
@@ -47,7 +51,8 @@ ChallengePage2.propTypes = {
 	status: PropTypes.string,
 	gameStarted: PropTypes.bool,
 	myWords: PropTypes.arrayOf(PropTypes.object).isRequired,
-	history: PropTypes.object.isRequired
+	history: PropTypes.object.isRequired,
+	game: PropTypes.object
 };
 
 function gameStarted() {
@@ -97,11 +102,26 @@ function setStatus() {
 	}
 }
 
+function getGameId() {
+	let game = Games.findOne({
+		$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId() }]
+	});
+
+	console.log(game);
+
+	return game;
+}
+
 export default withTracker(() => {
-	Meteor.subscribe("Games");
+	Meteor.subscribe("Games").ready();
 	Meteor.subscribe("defaultList");
 
+	// let game = Games.find({
+	// 	$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId()}]
+	// }).fetch();
+
 	return {
+		game: getGameId(),
 		status: setStatus(),
 		gameStarted: gameStarted(),
 		myWords: DefaultList.find({

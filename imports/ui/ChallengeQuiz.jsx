@@ -1,12 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
-import { withTracker } from "meteor/react-meteor-data";
 import Quiz from "./Quiz.jsx";
-import { Questions } from "../api/Questions.js";
 import { Container, Message, Grid } from "semantic-ui-react";
 
-class ChallengeQuiz extends React.Component {
+export default class ChallengeQuiz extends React.Component {
 	constructor(props) {
 		super(props);
 
@@ -21,21 +19,18 @@ class ChallengeQuiz extends React.Component {
 			result: ""
 		};
 
+		console.log(props.game);
 		this.handleAnswerSelected = this.handleAnswerSelected.bind(this);
 	}
 
-	componentDidUpdate(prevProps) {
-		// Typical usage (don't forget to compare props):
-		if (this.props.questions.length !== prevProps.questions.length) {
-			// shuffle options
-			const shuffledAnswerOptions = this.props.questions.map(question =>
-				this.shuffleArray(question.options)
-			);
-			this.setState({
-				question: this.props.questions[0].question, // the first question
-				answerOptions: shuffledAnswerOptions[0] // the first group of options
-			});
-		}
+	componentDidMount() {
+		const shuffledAnswerOptions = this.props.game.quiz.map(question =>
+			this.shuffleArray(question.options)
+		);
+		this.setState({
+			question: this.props.game.quiz[0].question, // the first question
+			answerOptions: shuffledAnswerOptions[0] // the first group of options
+		});
 	}
 
 	shuffleArray(array) {
@@ -85,8 +80,8 @@ class ChallengeQuiz extends React.Component {
 		this.setState({
 			counter: counter,
 			questionId: questionId,
-			question: this.props.questions[counter].question,
-			answerOptions: this.props.questions[counter].options,
+			question: this.props.game.quiz[counter].question,
+			answerOptions: this.props.game.quiz[counter].options,
 			answer: ""
 		});
 	}
@@ -131,6 +126,7 @@ class ChallengeQuiz extends React.Component {
 						)}
 					</Grid.Column>
 				</Grid>
+
 				{this.renderQuiz()}
 			</Container>
 		);
@@ -138,36 +134,7 @@ class ChallengeQuiz extends React.Component {
 }
 
 ChallengeQuiz.propTypes = {
-	questions: PropTypes.arrayOf(PropTypes.object).isRequired,
-	ready: PropTypes.bool.isRequired
+	game: PropTypes.object.isRequired
 };
 
-function getRandomArrayElements(arr, num) {
-	var temp_array = new Array();
-	for (var index in arr) {
-		temp_array.push(arr[index]);
-	}
-	var return_array = new Array();
-	for (var i = 0; i < num; i++) {
-		if (temp_array.length > 0) {
-			var arrIndex = Math.floor(Math.random() * temp_array.length);
-			return_array[i] = temp_array[arrIndex];
-			temp_array.splice(arrIndex, 1);
-		} else {
-			break;
-		}
-	}
-	return return_array;
-}
 
-export default withTracker(() => {
-	const handle = Meteor.subscribe("Questions");
-	let questions = Questions.find({}).fetch();
-
-	let randomQuestions = getRandomArrayElements(questions, 10);
-
-	return {
-		questions: randomQuestions,
-		ready: handle.ready()
-	};
-})(ChallengeQuiz);
