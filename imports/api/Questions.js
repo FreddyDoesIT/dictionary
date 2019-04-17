@@ -15,6 +15,23 @@ let dataSet = allSearchedWords.find({}).fetch();
 let wordsSet = new Set();
 dataSet.forEach(e => wordsSet.add(e.word));
 
+function shuffleArray(array) {
+	var currentIndex = array.length,
+		temporaryValue,
+		randomIndex;
+
+	while (0 !== currentIndex) {
+		randomIndex = Math.floor(Math.random() * currentIndex);
+		currentIndex -= 1;
+
+		temporaryValue = array[currentIndex];
+		array[currentIndex] = array[randomIndex];
+		array[randomIndex] = temporaryValue;
+	}
+
+	return array;
+}
+
 Meteor.methods({
 	"Questions.insert"(word, content) {
 		check(word, String);
@@ -31,23 +48,25 @@ Meteor.methods({
 		let optionIndex1 = Math.floor(Math.random() * (uniquewords.length - 1));
 		let optionIndex2 = optionIndex1 + 1;
 
-		let option1 =
-			uniquewords[optionIndex1];
-		let option2 =
-			uniquewords[optionIndex2];
-		
+		let option1 = uniquewords[optionIndex1];
+		let option2 = uniquewords[optionIndex2];
+
 		let question = content.definition;
 		let options = [];
-		options.push({
-			type: true,
-			content: word
-		}, {
-			type: false,
-			content: option1
-		}, {
-			type: false,
-			content: option2
-		});
+		options.push(
+			{
+				type: true,
+				content: word
+			},
+			{
+				type: false,
+				content: option1
+			},
+			{
+				type: false,
+				content: option2
+			}
+		);
 
 		let wordDoc = Questions.findOne({
 			question: question
@@ -56,7 +75,7 @@ Meteor.methods({
 		if (wordDoc === undefined) {
 			Questions.insert({
 				question: question,
-				options: options
+				options: shuffleArray(options)
 			});
 		}
 	}

@@ -24,12 +24,12 @@ export default class ChallengeQuiz extends React.Component {
 	}
 
 	componentDidMount() {
-		const shuffledAnswerOptions = this.props.game.quiz.map(question =>
-			this.shuffleArray(question.options)
-		);
+		// const shuffledAnswerOptions = this.props.game.quiz.map(question =>
+		// 	this.shuffleArray(question.options)
+		// );
 		this.setState({
 			question: this.props.game.quiz[0].question, // the first question
-			answerOptions: shuffledAnswerOptions[0] // the first group of options
+			answerOptions: this.props.game.quiz[0].options // the first group of options
 		});
 	}
 
@@ -128,6 +128,7 @@ export default class ChallengeQuiz extends React.Component {
 				</Grid>
 
 				{this.renderQuiz()}
+				{this.state.points}
 			</Container>
 		);
 	}
