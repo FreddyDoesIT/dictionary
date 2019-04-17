@@ -90,14 +90,6 @@ body {
   border-radius: 50%;
   transition: all 0.3s;
 }
-
-/*.radioCustomLabel:before {
-  content: '';
-  background: #8bc53f url(/icon-check.svg) no-repeat;
-  background-size: 27px;
-  border-color: #8bc53f;
-}*/
-
  
 /* Quiz Component */
 .answerOptions {
