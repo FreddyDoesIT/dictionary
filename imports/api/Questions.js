@@ -27,18 +27,15 @@ Meteor.methods({
 		wordsSet.delete(word);
 		let uniquewords = Array.from(wordsSet);
 
-		let optionIndex1 = 0;
-		let optionIndex2 = 0;
-		while (optionIndex1 === optionIndex2) {
-			optionIndex1 = Math.floor(Math.random() * uniquewords.length + 1) - 1;
-			optionIndex2 = Math.floor(Math.random() * uniquewords.length + 1) - 1;
-		} 
+		// to get two different index
+		let optionIndex1 = Math.floor(Math.random() * (uniquewords.length - 1));
+		let optionIndex2 = optionIndex1 + 1;
 
 		let option1 =
 			uniquewords[optionIndex1];
 		let option2 =
 			uniquewords[optionIndex2];
-
+		
 		let question = content.definition;
 		let options = [];
 		options.push({

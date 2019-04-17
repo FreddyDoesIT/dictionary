@@ -15,6 +15,7 @@ import { Meteor } from "meteor/meteor";
 import { DDPRateLimiter } from "meteor/ddp-rate-limiter";
 import { WebApp } from "meteor/webapp";
 
+
 WebApp.addHtmlAttributeHook(() => ({ lang: "en" }));
 
 // Get list of all method names on Lists
