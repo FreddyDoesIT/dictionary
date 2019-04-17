@@ -18,7 +18,14 @@ import { WebApp } from "meteor/webapp";
 WebApp.addHtmlAttributeHook(() => ({ lang: "en" }));
 
 // Get list of all method names on Lists
-const LISTS_METHODS = ["user.pointsUpdate","Questions.insert","allSearchedWords.insert","defaultList.insert", "defaultList.remove", "getData"];
+const LISTS_METHODS = [
+	"user.pointsUpdate",
+	"Questions.insert",
+	"allSearchedWords.insert",
+	"defaultList.insert",
+	"defaultList.remove",
+	"getData"
+];
 
 // Only allow 5 list operations per connection per second
 if (Meteor.isServer) {
@@ -38,6 +45,7 @@ if (Meteor.isServer) {
 	);
 }
 
+// start the game
 UserStatus.events.on("connectionLogout", fields => {
 	const game = Games.findOne({
 		$or: [{ player1: fields.userId }, { player2: fields.userId }]
