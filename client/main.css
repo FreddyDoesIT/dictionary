@@ -51,7 +51,7 @@ body {
 }
 
 .answerOption:hover {
-  background-color: #eefbfe;
+  background-color: /*#eefbfe*/#42d9f4;
 }
 
 /* Hide the browser's default radio button */

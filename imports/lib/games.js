@@ -18,7 +18,7 @@ if (Meteor.isServer) {
 
 Meteor.methods({
 	"game.play"() {
-		// remove all played game with this user
+		// remove all ended game with this user
 		let endGame = Games.findOne({
 			gameStatus: "gameover",
 			$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId() }]
@@ -46,7 +46,7 @@ Meteor.methods({
 	// update gameWinner
 
 	"game.update"(userId) {
-		// remove all played game with this user
+		// remove all ended game with this user
 		let game = Games.findOne({
 			gameStatus: "playing",
 			$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId() }]
