@@ -124,7 +124,7 @@ class WordItem extends React.Component {
 		const style = {
 			borderRadius: 25,
 			opacity: 0.7,
-			background: "#27EB65"
+			background: "#5AEB28"
 		};
 
 		return (

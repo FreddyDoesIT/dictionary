@@ -24,30 +24,10 @@ export default class ChallengeQuiz extends React.Component {
 	}
 
 	componentDidMount() {
-		// const shuffledAnswerOptions = this.props.game.quiz.map(question =>
-		// 	this.shuffleArray(question.options)
-		// );
 		this.setState({
 			question: this.props.game.quiz[0].question, // the first question
 			answerOptions: this.props.game.quiz[0].options // the first group of options
 		});
-	}
-
-	shuffleArray(array) {
-		var currentIndex = array.length,
-			temporaryValue,
-			randomIndex;
-
-		while (0 !== currentIndex) {
-			randomIndex = Math.floor(Math.random() * currentIndex);
-			currentIndex -= 1;
-
-			temporaryValue = array[currentIndex];
-			array[currentIndex] = array[randomIndex];
-			array[randomIndex] = temporaryValue;
-		}
-
-		return array;
 	}
 
 	handleAnswerSelected(event) {

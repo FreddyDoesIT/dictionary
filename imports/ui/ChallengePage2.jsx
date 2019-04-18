@@ -116,10 +116,6 @@ export default withTracker(() => {
 	Meteor.subscribe("Games").ready();
 	Meteor.subscribe("defaultList");
 
-	// let game = Games.find({
-	// 	$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId()}]
-	// }).fetch();
-
 	return {
 		game: getGameId(),
 		status: setStatus(),
