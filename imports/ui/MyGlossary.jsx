@@ -53,7 +53,7 @@ class MyGlossary extends Component {
 	renderWords() {
 		return this.props.myWords.map(word => (
 			<Grid.Row key={word._id}>
-				<Grid.Column width={3} id="glossaryCol" stretched>
+				<Grid.Column width={3} className="glossaryCol" stretched>
 					{word.word}
 					<p className="savedTimes">Saved: {word.searchTimes}</p>
 				</Grid.Column>

@@ -3,6 +3,10 @@ body {
   font-family: sans-serif;
 }
 
+.ui.icon.input>i.icon {
+  top:-10px !important;
+}
+
 #mainPageCard {
   font-family: "Noto Serif", serif;
   color: black;
@@ -36,9 +40,9 @@ body {
   text-align: left;
 }
 
-#glossaryCol {
-  text-align: right;
-  font-weight: bold;
+.glossaryCol {
+  text-align: right !important;
+  font-weight: bold !important;
 }
 .savedTimes {
   font-weight: normal;
