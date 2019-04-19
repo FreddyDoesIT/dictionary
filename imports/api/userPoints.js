@@ -1,5 +1,5 @@
 import { Meteor } from "meteor/meteor";
-
+import { check } from "meteor/check";
 
 if (Meteor.isServer) {
 	Meteor.publish("userData", function publishUserdata() {
@@ -17,6 +17,9 @@ if (Meteor.isServer) {
 
 Meteor.methods({
 	"user.pointsUpdate"(id, points) {
+		check(id, String);
+		check(points, Number);
+
 		if (!Meteor.userId()) {
 			throw new Meteor.Error("not-authorized");
 		}

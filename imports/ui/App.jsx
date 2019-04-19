@@ -5,7 +5,7 @@ import { Container, Image } from "semantic-ui-react";
 import NavigationBar from "./NavigationBar.jsx";
 import SearchBar from "./SearchBar.jsx";
 
-import TypingAnimation from "../api/type.js";
+import TypingAnimation from "./TypingAnimation.jsx";
 import WordsList from "./WordsList";
 
 import "../api/wordsAPI";
