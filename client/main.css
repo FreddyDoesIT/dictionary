@@ -7,9 +7,9 @@ body {
   top:-10px !important;
 }
 
-#mainPageCard {
-  font-family: "Noto Serif", serif;
-  color: black;
+.mainPageCard {
+  font-family: "Noto Serif", serif !important;
+  color: black !important;
 }
 
 #searchBar {
