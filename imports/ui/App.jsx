@@ -50,7 +50,6 @@ export default class App extends React.Component {
 	render() {
 		let date = new Date();
 		let imgSrc = "/" + date.getDay() + ".png";
-
 		return (
 			<Container textAlign="center">
 				<header>

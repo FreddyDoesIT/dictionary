@@ -39,7 +39,7 @@ class Quiz extends React.Component {
 
 Quiz.propTypes = {
 	questionId: PropTypes.number.isRequired,
-	answer: PropTypes.string.isRequired,
+	answer: PropTypes.string,
 	answerOptions: PropTypes.array.isRequired,
 	question: PropTypes.string.isRequired,
 

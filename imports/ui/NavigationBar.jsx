@@ -29,7 +29,7 @@ class NavigationBar extends Component {
 			<Menu.Item>
 				<Button
 					color="blue"
-					className="hvr-ripple-out"
+					className="hvr-grow-shadow"
 					onClick={this.handleClick.bind(this)}
 				>
 					Log In
@@ -86,7 +86,7 @@ class NavigationBar extends Component {
 						<Link to="/winnerboard">
 							<Button
 								color="red"
-								className="hvr-ripple-out"
+								className="hvr-grow-shadow"
 								icon
 							>
 								<Icon name='winner' />

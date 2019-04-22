@@ -11,7 +11,6 @@ class AnswerOption extends React.Component {
 						type="radio"
 						className="radioCustomButton"
 						name="radioGroup"
-						checked={this.props.answerType === this.props.answer}
 						value={this.props.answerType}
 						disabled={!!this.props.answer}
 						onChange={this.props.onAnswerSelected}
@@ -26,7 +25,7 @@ class AnswerOption extends React.Component {
 AnswerOption.propTypes = {
 	answerType: PropTypes.bool.isRequired,
 	answerContent: PropTypes.string.isRequired,
-	answer: PropTypes.string.isRequired,
+	answer: PropTypes.string,
 	onAnswerSelected: PropTypes.func.isRequired
 };
 

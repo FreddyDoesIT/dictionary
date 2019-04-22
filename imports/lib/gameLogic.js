@@ -3,7 +3,6 @@ import { Games } from "./games.js";
 import { Questions } from "../api/Questions.js";
 
 class GameLogic {
-
 	getRandomArrayElements(arr, num) {
 		var temp_array = new Array();
 		for (var index in arr) {
@@ -37,7 +36,20 @@ class GameLogic {
 				player1: Meteor.userId(),
 				player2: "",
 				gameStatus: "waiting",
+				questionId: 1,
+				counter: 0,
 				gameWinner: "",
+				p1_profile: {
+					userId: Meteor.userId(),
+					answer: "",
+					points: 0
+				},
+				p2_profile: {
+					userId: "",
+					answer: "",
+					points: 0
+				},
+				clicked: 0,
 				quiz: randomQuestions
 			});
 		}
@@ -51,7 +63,11 @@ class GameLogic {
 				{
 					$set: {
 						player2: Meteor.userId(),
-						gameStatus: "playing"
+						gameStatus: "playing",
+						p2_profile: {
+							userId: Meteor.userId(),
+							points: 0
+						}
 					}
 				}
 			);

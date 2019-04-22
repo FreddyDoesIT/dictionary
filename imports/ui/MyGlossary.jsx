@@ -6,10 +6,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import {
 	Container,
 	Grid,
-	Button,
-	Header,
-	Icon,
-	Modal
+	Button
 } from "semantic-ui-react";
 import "../api/lists";
 import NavigationBar from "./NavigationBar.jsx";

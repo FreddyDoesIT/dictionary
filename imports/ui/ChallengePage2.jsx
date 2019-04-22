@@ -33,6 +33,9 @@ class ChallengePage2 extends React.Component {
 						<span>Game Status</span> :{" "}
 						<span>{this.props.status}</span>
 					</p>
+					<p>
+						<span> Points</span> : <span>{this.props.points}</span>
+					</p>
 				</div>
 
 				<hr />
@@ -52,7 +55,8 @@ ChallengePage2.propTypes = {
 	gameStarted: PropTypes.bool,
 	myWords: PropTypes.arrayOf(PropTypes.object).isRequired,
 	history: PropTypes.object.isRequired,
-	game: PropTypes.object
+	game: PropTypes.object,
+	points: PropTypes.number
 };
 
 function gameStarted() {
@@ -74,24 +78,22 @@ function gameStarted() {
 
 function setStatus() {
 	if (Session.get("inGame")) {
-		let newGame = Games.findOne({
+		let game = Games.findOne({
 			$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId() }]
 		});
 
-		if (newGame !== undefined) {
-			if (newGame.gameStatus === "waiting") {
+		if (game !== undefined) {
+			if (game.gameStatus === "waiting") {
 				return "Waiting for an opponent...";
-			} else if (newGame.gameStatus === "playing") {
+			} else if (game.gameStatus === "playing") {
 				return "Game playing...";
-			} else if (newGame.gameStatus === "gameover") {
-				if (newGame.gameWinner === Meteor.userId()) {
-					return "You win!";
-					// return points!
-				} else if (newGame.gameWinner !== Meteor.userId()) {
-					return "You lost!";
-					//return points1
-				} else if (newGame.gameWinner === "tie") {
+			} else if (game.gameStatus === "gameover") {
+				if (game.gameWinner === "tie") {
 					return "Tie";
+				} else if (game.gameWinner === Meteor.userId()) {
+					return "You win!";
+				} else if (game.gameWinner !== Meteor.userId()) {
+					return "You lost!";
 				}
 			}
 		} else {
@@ -102,26 +104,31 @@ function setStatus() {
 	}
 }
 
-function getGameId() {
-	let game = Games.findOne({
-		$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId() }]
-	});
-
-	console.log(game);
-
-	return game;
+function pointsTracker(game) {
+	if (game !== undefined) {
+		if (Meteor.userId() == game.p1_profile.userId) {
+			return game.p1_profile.points;
+		} else if (Meteor.userId() == game.p2_profile.userId) {
+			return game.p2_profile.points;
+		}
+	}
 }
 
 export default withTracker(() => {
 	Meteor.subscribe("Games").ready();
 	Meteor.subscribe("defaultList");
 
+	let game = Games.findOne({
+		$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId() }]
+	});
+
 	return {
-		game: getGameId(),
+		game: game,
 		status: setStatus(),
 		gameStarted: gameStarted(),
 		myWords: DefaultList.find({
 			userId: Meteor.userId()
-		}).fetch()
+		}).fetch(),
+		points: pointsTracker(game)
 	};
 })(ChallengePage2);

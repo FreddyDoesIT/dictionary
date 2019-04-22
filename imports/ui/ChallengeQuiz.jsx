@@ -2,89 +2,80 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import Quiz from "./Quiz.jsx";
-import { Container, Message, Grid } from "semantic-ui-react";
+import { Container } from "semantic-ui-react";
+import { withTracker } from "meteor/react-meteor-data";
+import { Games } from "../lib/games.js";
 
-export default class ChallengeQuiz extends React.Component {
+class ChallengeQuiz extends React.Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			counter: 0,
-			questionId: 1,
-			question: "",
-			answerOptions: [],
-			answer: "",
-			points: 0,
-			questionTotal: 10,
-			result: ""
+			questionTotal: 10
 		};
 
-		console.log(props.game);
 		this.handleAnswerSelected = this.handleAnswerSelected.bind(this);
 	}
 
-	componentDidMount() {
-		this.setState({
-			question: this.props.game.quiz[0].question, // the first question
-			answerOptions: this.props.game.quiz[0].options // the first group of options
-		});
-	}
-
 	handleAnswerSelected(event) {
+		// check whether the answer is correct
 		this.setUserAnswer(event.currentTarget.value);
+		Meteor.call("clicked.update", this.props.game._id);
 
-		if (this.state.questionId < this.state.questionTotal) {
-			setTimeout(() => this.setNextQuestion(), 300);
-		} else {
-			setTimeout(() => this.setResults(), 300);
-			// set game status and winner
-			Meteor.call("game.update", Meteor.userId());
-			Meteor.call(
-				"user.pointsUpdate",
-				Meteor.userId(),
-				this.state.points
-			);
+		// click times should be 2, but use 1 as the threshold
+		if (this.props.clicked === 1) {
+			if (this.props.game.questionId < this.state.questionTotal) {
+				// console.log(this.props.game.questionId);
+
+				setTimeout(() => this.setNextQuestion(), 300);
+			} else {
+				setTimeout(() => this.setResults(), 300);
+				// set game status and winner
+				Meteor.call("game.update", Meteor.userId());
+				Meteor.call(
+					"user.pointsUpdate",
+					Meteor.userId(),
+					this.state.points
+				);
+			}
 		}
 	}
 
 	setResults() {
-		this.setState({
-			result: "You got " + this.state.points + " points!"
-		});
+		Meteor.call("game.updateWinner", this.props.game._id);
 	}
 
 	setNextQuestion() {
-		const counter = this.state.counter + 1;
-		const questionId = this.state.questionId + 1;
-
-		this.setState({
-			counter: counter,
-			questionId: questionId,
-			question: this.props.game.quiz[counter].question,
-			answerOptions: this.props.game.quiz[counter].options,
-			answer: ""
-		});
+		Meteor.call("questionId.update", this.props.game._id);
+		Meteor.call("clicked.reset", this.props.game._id);
+		Meteor.call("answer.reset", this.props.game._id);
 	}
 
 	setUserAnswer(answer) {
 		if (answer === "true") {
-			this.setState({
-				points: this.state.points + 10
-			});
+			Meteor.call("points.update", this.props.game._id, Meteor.userId());
 		}
 
-		this.setState({
-			answer: answer
-		});
+
+		Meteor.call(
+			"answer.select",
+			this.props.game._id,
+			Meteor.userId(),
+			answer
+		);
 	}
 
 	renderQuiz() {
 		return (
 			<Quiz
-				question={this.state.question}
-				questionId={this.state.questionId}
-				answerOptions={this.state.answerOptions}
-				answer={this.state.answer}
+				question={
+					this.props.game.quiz[this.props.game.counter].question
+				}
+				questionId={this.props.game.questionId}
+				answerOptions={
+					this.props.game.quiz[this.props.game.counter].options
+				}
+				answer={this.props.answer}
 				questionTotal={this.state.questionTotal}
 				onAnswerSelected={this.handleAnswerSelected}
 			/>
@@ -94,28 +85,36 @@ export default class ChallengeQuiz extends React.Component {
 	render() {
 		return (
 			<Container>
-				<Grid centered columns="equal">
-					<Grid.Column width={8}>
-						{this.state.result ? (
-							<Message
-								icon="bullhorn"
-								header={this.state.result}
-							/>
-						) : (
-							undefined
-						)}
-					</Grid.Column>
-				</Grid>
-
 				{this.renderQuiz()}
-				{this.state.points}
 			</Container>
 		);
 	}
 }
 
 ChallengeQuiz.propTypes = {
-	game: PropTypes.object.isRequired
+	game: PropTypes.object,
+	counter: PropTypes.number,
+	clicked: PropTypes.number,
+	answer: PropTypes.string
 };
 
+function answerTracker(game) {
+	if (Meteor.userId() == game.p1_profile.userId) {
+		return game.p1_profile.answer;
+	} else if (Meteor.userId() == game.p2_profile.userId) {
+		return game.p2_profile.answer;
+	}
+}
 
+export default withTracker(() => {
+	Meteor.subscribe("Games").ready();
+
+	let game = Games.findOne({
+		$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId() }]
+	});
+
+	return {
+		clicked: game.clicked,
+		answer: answerTracker(game)
+	};
+})(ChallengeQuiz);
