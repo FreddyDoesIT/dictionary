@@ -55,15 +55,15 @@ Meteor.methods({
 		let options = [];
 		options.push(
 			{
-				type: true,
+				type: "correct",
 				content: word
 			},
 			{
-				type: false,
+				type: "wrong1",
 				content: option1
 			},
 			{
-				type: false,
+				type: "wrong2",
 				content: option2
 			}
 		);

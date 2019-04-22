@@ -270,7 +270,7 @@ Meteor.methods({
 					_id: game._id
 				},
 				{
-					$set: { gameStatus: "gameover", gameWinner: userId }
+					$set: { gameStatus: "gameover" }
 				}
 			);
 		}

@@ -25,24 +25,20 @@ class ChallengeQuiz extends React.Component {
 		// click times should be 2, but use 1 as the threshold
 		if (this.props.clicked === 1) {
 			if (this.props.game.questionId < this.state.questionTotal) {
-				// console.log(this.props.game.questionId);
-
 				setTimeout(() => this.setNextQuestion(), 300);
 			} else {
 				setTimeout(() => this.setResults(), 300);
-				// set game status and winner
-				Meteor.call("game.update", Meteor.userId());
-				Meteor.call(
-					"user.pointsUpdate",
-					Meteor.userId(),
-					this.state.points
-				);
 			}
 		}
 	}
 
 	setResults() {
+		// update winner
 		Meteor.call("game.updateWinner", this.props.game._id);
+		// update gama statue
+		Meteor.call("game.update", Meteor.userId());
+		// update user points
+		Meteor.call("user.pointsUpdate", Meteor.userId(), this.props.points);
 	}
 
 	setNextQuestion() {
@@ -52,10 +48,9 @@ class ChallengeQuiz extends React.Component {
 	}
 
 	setUserAnswer(answer) {
-		if (answer === "true") {
+		if (answer === "correct") {
 			Meteor.call("points.update", this.props.game._id, Meteor.userId());
 		}
-
 
 		Meteor.call(
 			"answer.select",
@@ -83,11 +78,7 @@ class ChallengeQuiz extends React.Component {
 	}
 
 	render() {
-		return (
-			<Container>
-				{this.renderQuiz()}
-			</Container>
-		);
+		return <Container>{this.renderQuiz()}</Container>;
 	}
 }
 
@@ -95,7 +86,8 @@ ChallengeQuiz.propTypes = {
 	game: PropTypes.object,
 	counter: PropTypes.number,
 	clicked: PropTypes.number,
-	answer: PropTypes.string
+	answer: PropTypes.string,
+	points: PropTypes.number
 };
 
 function answerTracker(game) {
@@ -103,6 +95,16 @@ function answerTracker(game) {
 		return game.p1_profile.answer;
 	} else if (Meteor.userId() == game.p2_profile.userId) {
 		return game.p2_profile.answer;
+	}
+}
+
+function pointsTracker(game) {
+	if (game !== undefined) {
+		if (Meteor.userId() == game.p1_profile.userId) {
+			return game.p1_profile.points;
+		} else if (Meteor.userId() == game.p2_profile.userId) {
+			return game.p2_profile.points;
+		}
 	}
 }
 
@@ -115,6 +117,7 @@ export default withTracker(() => {
 
 	return {
 		clicked: game.clicked,
-		answer: answerTracker(game)
+		answer: answerTracker(game),
+		points: pointsTracker(game)
 	};
 })(ChallengeQuiz);
