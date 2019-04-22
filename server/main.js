@@ -25,7 +25,16 @@ const LISTS_METHODS = [
 	"allSearchedWords.insert",
 	"defaultList.insert",
 	"defaultList.remove",
-	"getData"
+	"getData",
+	"game.play",
+	"questionId.update",
+	"clicked.update",
+	"clicked.reset",
+	"points.update",
+	"answer.select",
+	"game.updateWinner",
+	"answer.reset",
+	"game.update"
 ];
 
 // Only allow 5 list operations per connection per second
