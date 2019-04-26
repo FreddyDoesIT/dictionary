@@ -34,9 +34,26 @@ class ChallengePage2 extends React.Component {
 						<span>{this.props.status}</span>
 					</p>
 					<p>
-						<span> Points</span> : <span>{this.props.points}</span>
-						<span> Opponent</span> :{" "}
-						<span>{this.props.opponent}</span>
+						{this.props.opponent ? (
+							<span> My Points : {this.props.points}</span>
+						) : (
+							""
+						)}
+
+						{this.props.opponent ? (
+							<span> Opponent : {this.props.opponent}</span>
+						) : (
+							""
+						)}
+
+						{this.props.opponent ? (
+							<span>
+								{" "}
+								Opponent Points : {this.props.opponentPoints}
+							</span>
+						) : (
+							""
+						)}
 					</p>
 				</div>
 
@@ -59,7 +76,8 @@ ChallengePage2.propTypes = {
 	history: PropTypes.object.isRequired,
 	game: PropTypes.object,
 	points: PropTypes.number,
-	opponent: PropTypes.string
+	opponent: PropTypes.string,
+	opponentPoints: PropTypes.number
 };
 
 function gameStarted() {
@@ -121,36 +139,21 @@ function getOpponentName() {
 	if (Session.get("inGame")) {
 		let myGame = Games.findOne({ gameStatus: "playing" });
 
-		console.log(myGame);
+		// console.log(myGame);
 
 		if (myGame !== undefined) {
 			if (myGame.gameStatus === "waiting") {
 				return "";
 			} else {
 				console.log("game playing ");
-
 				let res = "";
-
-				console.log("player1 is : ");
-				console.log(myGame.player1);
-				console.log("player2 is : ");
-				console.log(myGame.player2);
-
 				if (myGame.player1 === Meteor.userId()) {
 					res = Meteor.users.findOne({ _id: myGame.player2 })
 						.username;
-					console.log("myGame.player1 === Meteor.userId()");
-					console.log(res);
 				} else {
 					res = Meteor.users.findOne({ _id: myGame.player1 })
 						.username;
-
-					console.log("myGame.player2 === Meteor.userId()");
-					console.log(res);
 				}
-
-				console.log("res is : ");
-				console.log(res);
 				return res;
 			}
 		}
@@ -159,9 +162,26 @@ function getOpponentName() {
 	}
 }
 
+function getOpponentPoints() {
+	if (Session.get("inGame")) {
+		let myGame = Games.findOne({ gameStatus: "playing" });
+		if (myGame !== undefined) {
+			let points = 0;
+			if (myGame.player1 === Meteor.userId()) {
+				points = myGame.p2_profile.points;
+			} else {
+				points = myGame.p1_profile.points;
+			}
+			return points;
+		}
+	}
+}
+
 export default withTracker(() => {
 	Meteor.subscribe("Games").ready();
 	Meteor.subscribe("defaultList");
+	// without this, Meteor.users.findOne({ _id: myGame.player2 }).username
+	// returns undefined
 	Meteor.subscribe("userData").ready();
 
 	let game = Games.findOne({
@@ -176,6 +196,7 @@ export default withTracker(() => {
 			userId: Meteor.userId()
 		}).fetch(),
 		points: pointsTracker(game),
-		opponent: getOpponentName()
+		opponent: getOpponentName(),
+		opponentPoints: getOpponentPoints()
 	};
 })(ChallengePage2);
