@@ -78,7 +78,7 @@ class ChallengeQuiz extends React.Component {
 	}
 
 	render() {
-		return <Container>{this.renderQuiz()}</Container>;
+		return <div>{this.renderQuiz()}</div>;
 	}
 }
 

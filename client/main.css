@@ -25,7 +25,7 @@ body {
 .exam {
   margin: auto;
   margin-top: 5px;
-  width: 70%;
+  width: 90%;
   padding: 10px;
   border: 1px solid #eee;
 }
@@ -101,6 +101,12 @@ body {
   background-size: 27px;
   border-color: #8bc53f;
 }
+
+
+.radioCustomButton:checked ~ .answerOption.#correct {
+  background-color: green;
+}
+
 
  
 /* Quiz Component */

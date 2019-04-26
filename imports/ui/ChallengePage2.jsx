@@ -11,7 +11,7 @@ import ChallengeQuiz from "./ChallengeQuiz.jsx";
 import { Games } from "../lib/games.js";
 import { DefaultList } from "../api/lists";
 
-import { Container, Button } from "semantic-ui-react";
+import { Container, Grid, Button, Icon, Header } from "semantic-ui-react";
 
 class ChallengePage2 extends React.Component {
 	handleClick() {
@@ -20,50 +20,102 @@ class ChallengePage2 extends React.Component {
 		Meteor.subscribe("MyGame");
 	}
 
-	render() {
+	renderButtonandStatus() {
 		return (
-			<Container>
-				<NavigationBar />
-				<div className="gameStatus">
-					<Button positive onClick={this.handleClick.bind(this)}>
-						Play!
-					</Button>
-					<br />
-					<p>
-						<span>Game Status</span> :{" "}
-						<span>{this.props.status}</span>
-					</p>
-					<p>
-						{this.props.opponent ? (
-							<span> My Points : {this.props.points}</span>
-						) : (
-							""
-						)}
+			<Grid centered>
+				{this.props.status == "Click Play Button to start!" ? (
+					<Grid.Row>
+						{" "}
+						<Button
+							positive
+							icon
+							labelPosition="left"
+							size="big"
+							onClick={this.handleClick.bind(this)}
+						>
+							<Icon name="game" size="large" />
+							{"  "}Play
+						</Button>{" "}
+					</Grid.Row>
+				) : (
+					<div />
+				)}
 
-						{this.props.opponent ? (
-							<span> Opponent : {this.props.opponent}</span>
-						) : (
-							""
-						)}
+				{this.props.status == "You win!" ||
+				this.props.status == "You lost!" ||
+				this.props.status == "Tie" ? (
+						<Grid.Row>
+							<Button
+								positive
+								icon
+								labelPosition="left"
+								size="big"
+								onClick={this.handleClick.bind(this)}
+							>
+								<Icon name="game" size="large" />
+								{"  "}Play Again!
+							</Button>
+						</Grid.Row>
+					) : (
+						<div />
+					)}
+				<Grid.Row>
+					<Header as="h2" textAlign="center">
+						<Header.Content>{this.props.status}</Header.Content>
+					</Header>
+				</Grid.Row>
+			</Grid>
+		);
+	}
 
-						{this.props.opponent ? (
-							<span>
-								{" "}
-								Opponent Points : {this.props.opponentPoints}
-							</span>
-						) : (
-							""
-						)}
-					</p>
-				</div>
-
-				<hr />
-
-				{this.props.status == "Game playing..." ? (
+	renderQuiz() {
+		return (
+			<Grid.Column width={12}>
+				{this.props.status == "Game playing..." ||
+				this.props.status == "You win!" ||
+				this.props.status == "You lost!" ||
+				this.props.status == "Tie" ? (
 					<ChallengeQuiz game={this.props.game} />
 				) : (
 					<div />
 				)}
+			</Grid.Column>
+		);
+	}
+
+	renderScoreBoard() {
+		return (
+			<Grid.Column width={3}>
+				<Header as="h2" textAlign="center">
+					<Header.Content>ScoreBoard</Header.Content>
+					<hr />
+					<Header.Content>
+						{Meteor.user().username}
+						{": "}
+						{this.props.points}
+					</Header.Content>
+					<Header.Content>
+						{this.props.opponent}
+						{": "}
+						{this.props.opponentPoints}
+					</Header.Content>
+				</Header>
+			</Grid.Column>
+		);
+	}
+
+	render() {
+		return (
+			<Container>
+				<NavigationBar />
+				{this.renderButtonandStatus()}
+				<Grid>
+					<Grid.Row>
+						{this.renderQuiz()}
+
+						{this.props.opponent ? this.renderScoreBoard() : ""}
+					</Grid.Row>
+				</Grid>
 			</Container>
 		);
 	}
@@ -116,12 +168,13 @@ function setStatus() {
 				} else if (game.gameWinner !== Meteor.userId()) {
 					return "You lost!";
 				}
+				return "Game Over!";
 			}
 		} else {
-			return "Click play to start!";
+			return "Click Play Button to start!";
 		}
 	} else {
-		return "Click play to start!";
+		return "Click Play Button to start!";
 	}
 }
 
@@ -137,34 +190,43 @@ function pointsTracker(game) {
 
 function getOpponentName() {
 	if (Session.get("inGame")) {
-		let myGame = Games.findOne({ gameStatus: "playing" });
-
-		// console.log(myGame);
+		let myGame = Games.findOne({
+			$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId() }]
+		});
 
 		if (myGame !== undefined) {
 			if (myGame.gameStatus === "waiting") {
 				return "";
 			} else {
-				console.log("game playing ");
 				let res = "";
 				if (myGame.player1 === Meteor.userId()) {
-					res = Meteor.users.findOne({ _id: myGame.player2 })
-						.username;
+					res =
+						Meteor.users.findOne({ _id: myGame.player2 }) ===
+						undefined
+							? ""
+							: Meteor.users.findOne({ _id: myGame.player2 })
+								.username;
 				} else {
-					res = Meteor.users.findOne({ _id: myGame.player1 })
-						.username;
+					res =
+						Meteor.users.findOne({ _id: myGame.player1 }) ===
+						undefined
+							? ""
+							: Meteor.users.findOne({ _id: myGame.player1 })
+								.username;
 				}
 				return res;
 			}
 		}
 	} else {
-		return " ";
+		return "";
 	}
 }
 
 function getOpponentPoints() {
 	if (Session.get("inGame")) {
-		let myGame = Games.findOne({ gameStatus: "playing" });
+		let myGame = Games.findOne({
+			$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId() }]
+		});
 		if (myGame !== undefined) {
 			let points = 0;
 			if (myGame.player1 === Meteor.userId()) {
