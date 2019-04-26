@@ -56,7 +56,8 @@ body {
 }
 
 .answerOption:hover {
-  background-color: #42d9f4;
+  /*background-color: #42d9f4;*/
+  background-color: #eefbfe;
 }
 
 /* Hide the browser's default radio button */
@@ -103,12 +104,18 @@ body {
 }
 
 
-.radioCustomButton:checked ~ .answerOption.#correct {
-  background-color: green;
+.radioCustomButton:checked ~ label[for="correct"] {
+  background-color: #3FD351  ;
 }
 
+.radioCustomButton:checked ~ label[for="wrong1"] {
+  background-color: #F35039;
+}
 
- 
+.radioCustomButton:checked ~ label[for="wrong2"] {
+  background-color: #F35039;
+}
+
 /* Quiz Component */
 .answerOptions {
   margin: 0;

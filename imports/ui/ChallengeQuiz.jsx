@@ -24,7 +24,7 @@ class ChallengeQuiz extends React.Component {
 		// click times should be 2, but use 1 as the threshold
 		if (this.props.clicked === 1) {
 			if (this.props.game.questionId < this.state.questionTotal) {
-				setTimeout(() => this.setNextQuestion(), 300);
+				setTimeout(() => this.setNextQuestion(), 2000);
 			} else {
 				setTimeout(() => this.setResults(), 300);
 			}
