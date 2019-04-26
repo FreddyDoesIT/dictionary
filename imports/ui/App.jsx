@@ -16,7 +16,8 @@ export default class App extends React.Component {
 		this.state = {
 			searchWord: "",
 			words: [],
-			error: ""
+			error: "",
+			wordNodata: false
 		};
 	}
 
@@ -39,11 +40,19 @@ export default class App extends React.Component {
 				return;
 			}
 
-			this.setState({
-				searchWord: res.word,
-				words: res.results,
-				error: ""
-			});
+			if (res.results === undefined) {
+				this.setState({
+					wordNodata: true,
+					error: "No data from api"
+				});
+			} else {
+				this.setState({
+					searchWord: res.word,
+					words: res.results,
+					error: "",
+					wordNodata: false
+				});
+			}
 		});
 	}
 
@@ -65,10 +74,12 @@ export default class App extends React.Component {
 					<TypingAnimation /> <br />
 					<SearchBar onSubmit={this.onSearchSubmit.bind(this)} />
 					{this.state.error ? this.state.error : undefined}
-					<WordsList
+
+					{this.state.wordNodata ? "" : <WordsList
 						searchWord={this.state.searchWord}
 						words={this.state.words}
-					/>
+					/>}
+					
 				</main>
 			</Container>
 		);
