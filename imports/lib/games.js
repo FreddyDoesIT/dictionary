@@ -15,264 +15,278 @@ if (Meteor.isServer) {
 			$or: [{ player1: this.userId }, { player2: this.userId }]
 		});
 	});
+
+	Meteor.publish("userData", function() {
+		return Meteor.users.find({}, { fields: {username: 1 } });
+	});
 }
+if (Meteor.isServer) {
+	Meteor.methods({
+		"game.play"() {
+			// remove all ended game with this user
+			let endGame = Games.findOne({
+				gameStatus: "gameover",
+				$or: [
+					{ player1: Meteor.userId() },
+					{ player2: Meteor.userId() }
+				]
+			});
+			if (endGame !== undefined) {
+				gameLogic.removeGame(endGame._id);
+			}
 
-Meteor.methods({
-	"game.play"() {
-		// remove all ended game with this user
-		let endGame = Games.findOne({
-			gameStatus: "gameover",
-			$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId() }]
-		});
-		if (endGame !== undefined) {
-			gameLogic.removeGame(endGame._id);
-		}
+			// find a waiting game
+			// If there is no waiting game, start a new game, otherwise join this game
+			const game = Games.findOne({ gameStatus: "waiting" });
 
-		// find a waiting game
-		// If there is no waiting game, start a new game, otherwise join this game
-		const game = Games.findOne({ gameStatus: "waiting" });
+			if (game === undefined) {
+				gameLogic.newGame();
+			} else if (
+				game !== undefined &&
+				game.player1 !== this.userId &&
+				game.player2 === ""
+			) {
+				gameLogic.joinGame(game);
+			}
+		},
 
-		if (game === undefined) {
-			gameLogic.newGame();
-		} else if (
-			game !== undefined &&
-			game.player1 !== this.userId &&
-			game.player2 === ""
-		) {
-			gameLogic.joinGame(game);
-		}
-	},
+		"questionId.update"(gameId) {
+			check(gameId, String);
 
-	"questionId.update"(gameId) {
-		check(gameId, String);
+			if (!Meteor.userId()) {
+				throw new Meteor.Error("not-authorized");
+			}
 
-		if (!Meteor.userId()) {
-			throw new Meteor.Error("not-authorized");
-		}
+			let game = Games.findOne({
+				_id: gameId
+			});
 
-		let game = Games.findOne({
-			_id: gameId
-		});
-
-		if (game !== undefined) {
-			Games.update(
-				{
-					_id: game._id
-				},
-				{
-					$inc: { questionId: 1, counter: 1 }
-				}
-			);
-		}
-	},
-
-	"clicked.update"(gameId) {
-		check(gameId, String);
-
-		if (!Meteor.userId()) {
-			throw new Meteor.Error("not-authorized");
-		}
-
-		let game = Games.findOne({
-			_id: gameId
-		});
-
-		if (game !== undefined) {
-			Games.update(
-				{
-					_id: game._id
-				},
-				{
-					$inc: { clicked: 1 }
-				}
-			);
-		}
-	},
-
-	"clicked.reset"(gameId) {
-		check(gameId, String);
-
-		if (!Meteor.userId()) {
-			throw new Meteor.Error("not-authorized");
-		}
-
-		let game = Games.findOne({
-			_id: gameId
-		});
-
-		if (game !== undefined) {
-			Games.update(
-				{
-					_id: game._id
-				},
-				{
-					$set: { clicked: 0 }
-				}
-			);
-		}
-	},
-
-	"points.update"(gameId, userId) {
-		check(gameId, String);
-		check(userId, String);
-
-		if (!Meteor.userId()) {
-			throw new Meteor.Error("not-authorized");
-		}
-
-		let game = Games.findOne({
-			_id: gameId
-		});
-
-		if (game !== undefined) {
-			if (userId == game.p1_profile.userId) {
+			if (game !== undefined) {
 				Games.update(
 					{
 						_id: game._id
 					},
 					{
-						$inc: { "p1_profile.points": 10 }
-					}
-				);
-			} else if (userId == game.p2_profile.userId) {
-				Games.update(
-					{
-						_id: game._id
-					},
-					{
-						$inc: { "p2_profile.points": 10 }
+						$inc: { questionId: 1, counter: 1 }
 					}
 				);
 			}
-		}
-	},
+		},
 
-	"answer.select"(gameId, userId, answer) {
-		check(gameId, String);
-		check(userId, String);
+		"clicked.update"(gameId) {
+			check(gameId, String);
 
-		if (!Meteor.userId()) {
-			throw new Meteor.Error("not-authorized");
-		}
+			if (!Meteor.userId()) {
+				throw new Meteor.Error("not-authorized");
+			}
 
-		let game = Games.findOne({
-			_id: gameId
-		});
+			let game = Games.findOne({
+				_id: gameId
+			});
 
-		if (game !== undefined) {
-			if (userId == game.p1_profile.userId) {
+			if (game !== undefined) {
 				Games.update(
 					{
 						_id: game._id
 					},
 					{
-						$set: { "p1_profile.answer": answer }
-					}
-				);
-			} else if (userId == game.p2_profile.userId) {
-				Games.update(
-					{
-						_id: game._id
-					},
-					{
-						$set: { "p2_profile.answer": answer }
+						$inc: { clicked: 1 }
 					}
 				);
 			}
-		}
-	},
+		},
 
-	"game.updateWinner"(gameId) {
-		check(gameId, String);
+		"clicked.reset"(gameId) {
+			check(gameId, String);
 
-		if (!Meteor.userId()) {
-			throw new Meteor.Error("not-authorized");
-		}
+			if (!Meteor.userId()) {
+				throw new Meteor.Error("not-authorized");
+			}
 
-		let game = Games.findOne({
-			_id: gameId
-		});
+			let game = Games.findOne({
+				_id: gameId
+			});
 
-		if (game !== undefined) {
-			if (game.p1_profile.points > game.p2_profile.points) {
+			if (game !== undefined) {
+				Games.update(
+					{
+						_id: game._id
+					},
+					{
+						$set: { clicked: 0 }
+					}
+				);
+			}
+		},
+
+		"points.update"(gameId, userId) {
+			check(gameId, String);
+			check(userId, String);
+
+			if (!Meteor.userId()) {
+				throw new Meteor.Error("not-authorized");
+			}
+
+			let game = Games.findOne({
+				_id: gameId
+			});
+
+			if (game !== undefined) {
+				if (userId == game.p1_profile.userId) {
+					Games.update(
+						{
+							_id: game._id
+						},
+						{
+							$inc: { "p1_profile.points": 10 }
+						}
+					);
+				} else if (userId == game.p2_profile.userId) {
+					Games.update(
+						{
+							_id: game._id
+						},
+						{
+							$inc: { "p2_profile.points": 10 }
+						}
+					);
+				}
+			}
+		},
+
+		"answer.select"(gameId, userId, answer) {
+			check(gameId, String);
+			check(userId, String);
+
+			if (!Meteor.userId()) {
+				throw new Meteor.Error("not-authorized");
+			}
+
+			let game = Games.findOne({
+				_id: gameId
+			});
+
+			if (game !== undefined) {
+				if (userId == game.p1_profile.userId) {
+					Games.update(
+						{
+							_id: game._id
+						},
+						{
+							$set: { "p1_profile.answer": answer }
+						}
+					);
+				} else if (userId == game.p2_profile.userId) {
+					Games.update(
+						{
+							_id: game._id
+						},
+						{
+							$set: { "p2_profile.answer": answer }
+						}
+					);
+				}
+			}
+		},
+
+		"game.updateWinner"(gameId) {
+			check(gameId, String);
+
+			if (!Meteor.userId()) {
+				throw new Meteor.Error("not-authorized");
+			}
+
+			let game = Games.findOne({
+				_id: gameId
+			});
+
+			if (game !== undefined) {
+				if (game.p1_profile.points > game.p2_profile.points) {
+					Games.update(
+						{
+							_id: game._id
+						},
+						{
+							$set: {
+								gameWinner: game.p1_profile.userId
+							}
+						}
+					);
+				} else if (game.p1_profile.points < game.p2_profile.points) {
+					Games.update(
+						{
+							_id: game._id
+						},
+						{
+							$set: {
+								gameWinner: game.p2_profile.userId
+							}
+						}
+					);
+				} else {
+					Games.update(
+						{
+							_id: game._id
+						},
+						{
+							$set: {
+								gameWinner: "tie"
+							}
+						}
+					);
+				}
+			}
+		},
+
+		"answer.reset"(gameId) {
+			check(gameId, String);
+
+			if (!Meteor.userId()) {
+				throw new Meteor.Error("not-authorized");
+			}
+
+			let game = Games.findOne({
+				_id: gameId
+			});
+
+			if (game !== undefined) {
 				Games.update(
 					{
 						_id: game._id
 					},
 					{
 						$set: {
-							gameWinner: game.p1_profile.userId
-						}
-					}
-				);
-			} else if (game.p1_profile.points < game.p2_profile.points) {
-				Games.update(
-					{
-						_id: game._id
-					},
-					{
-						$set: {
-							gameWinner: game.p2_profile.userId
-						}
-					}
-				);
-			} else {
-				Games.update(
-					{
-						_id: game._id
-					},
-					{
-						$set: {
-							gameWinner: "tie"
+							"p1_profile.answer": "",
+							"p2_profile.answer": ""
 						}
 					}
 				);
 			}
+		},
+
+		// update game status --- game over
+		// update gameWinner
+		"game.update"(userId) {
+			check(userId, String);
+			// remove all ended game with this user
+			let game = Games.findOne({
+				gameStatus: "playing",
+				$or: [
+					{ player1: Meteor.userId() },
+					{ player2: Meteor.userId() }
+				]
+			});
+
+			if (game !== undefined) {
+				Games.update(
+					{
+						_id: game._id
+					},
+					{
+						$set: { gameStatus: "gameover" }
+					}
+				);
+			}
 		}
-	},
-
-	"answer.reset"(gameId) {
-		check(gameId, String);
-
-		if (!Meteor.userId()) {
-			throw new Meteor.Error("not-authorized");
-		}
-
-		let game = Games.findOne({
-			_id: gameId
-		});
-
-		if (game !== undefined) {
-			Games.update(
-				{
-					_id: game._id
-				},
-				{
-					$set: { "p1_profile.answer": "", "p2_profile.answer": "" }
-				}
-			);
-		}
-	},
-
-	// update game status --- game over
-	// update gameWinner
-	"game.update"(userId) {
-		check(userId, String);
-		// remove all ended game with this user
-		let game = Games.findOne({
-			gameStatus: "playing",
-			$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId() }]
-		});
-
-		if (game !== undefined) {
-			Games.update(
-				{
-					_id: game._id
-				},
-				{
-					$set: { gameStatus: "gameover" }
-				}
-			);
-		}
-	}
-});
+	});
+}
