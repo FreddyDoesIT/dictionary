@@ -35,6 +35,7 @@ class ChallengePage2 extends React.Component {
 					</p>
 					<p>
 						<span> Points</span> : <span>{this.props.points}</span>
+						<span> Opponent</span> :{" "}
 						<span>{this.props.opponent}</span>
 					</p>
 				</div>
@@ -57,7 +58,8 @@ ChallengePage2.propTypes = {
 	myWords: PropTypes.arrayOf(PropTypes.object).isRequired,
 	history: PropTypes.object.isRequired,
 	game: PropTypes.object,
-	points: PropTypes.number
+	points: PropTypes.number,
+	opponent: PropTypes.string
 };
 
 function gameStarted() {
@@ -116,40 +118,51 @@ function pointsTracker(game) {
 }
 
 function getOpponentName() {
-  if (Session.get("inGame")) {
-    let myGame = Games.findOne();
+	if (Session.get("inGame")) {
+		let myGame = Games.findOne({ gameStatus: "playing" });
 
-    if (myGame !== undefined) {
-      if (myGame.status === "waiting") {
-        return "";
-      } else {
-        let prefix = "Opponent player : ";
-        let res = "";
-        if (myGame.player1 === Meteor.userId()) {
-          res =
-            Meteor.users.find({ _id: myGame.player2 }).fetch()[0] === undefined
-              ? ""
-              : prefix +
-                Meteor.users.find({ _id: myGame.player2 }).fetch()[0].username;
-        } else {
-          res =
-            Meteor.users.find({ _id: myGame.player1 }).fetch()[0] === undefined
-              ? ""
-              : prefix +
-                Meteor.users.find({ _id: myGame.player1 }).fetch()[0].username;
-        }
+		console.log(myGame);
 
-        return res;
-      }
-    }
-  } else {
-    return " ";
-  }
+		if (myGame !== undefined) {
+			if (myGame.gameStatus === "waiting") {
+				return "";
+			} else {
+				console.log("game playing ");
+
+				let res = "";
+
+				console.log("player1 is : ");
+				console.log(myGame.player1);
+				console.log("player2 is : ");
+				console.log(myGame.player2);
+
+				if (myGame.player1 === Meteor.userId()) {
+					res = Meteor.users.findOne({ _id: myGame.player2 })
+						.username;
+					console.log("myGame.player1 === Meteor.userId()");
+					console.log(res);
+				} else {
+					res = Meteor.users.findOne({ _id: myGame.player1 })
+						.username;
+
+					console.log("myGame.player2 === Meteor.userId()");
+					console.log(res);
+				}
+
+				console.log("res is : ");
+				console.log(res);
+				return res;
+			}
+		}
+	} else {
+		return " ";
+	}
 }
 
 export default withTracker(() => {
 	Meteor.subscribe("Games").ready();
 	Meteor.subscribe("defaultList");
+	Meteor.subscribe("userData").ready();
 
 	let game = Games.findOne({
 		$or: [{ player1: Meteor.userId() }, { player2: Meteor.userId() }]
