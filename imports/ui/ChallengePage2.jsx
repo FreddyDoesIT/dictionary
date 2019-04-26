@@ -35,6 +35,7 @@ class ChallengePage2 extends React.Component {
 					</p>
 					<p>
 						<span> Points</span> : <span>{this.props.points}</span>
+						<span>{this.props.opponent}</span>
 					</p>
 				</div>
 
@@ -114,6 +115,38 @@ function pointsTracker(game) {
 	}
 }
 
+function getOpponentName() {
+  if (Session.get("inGame")) {
+    let myGame = Games.findOne();
+
+    if (myGame !== undefined) {
+      if (myGame.status === "waiting") {
+        return "";
+      } else {
+        let prefix = "Opponent player : ";
+        let res = "";
+        if (myGame.player1 === Meteor.userId()) {
+          res =
+            Meteor.users.find({ _id: myGame.player2 }).fetch()[0] === undefined
+              ? ""
+              : prefix +
+                Meteor.users.find({ _id: myGame.player2 }).fetch()[0].username;
+        } else {
+          res =
+            Meteor.users.find({ _id: myGame.player1 }).fetch()[0] === undefined
+              ? ""
+              : prefix +
+                Meteor.users.find({ _id: myGame.player1 }).fetch()[0].username;
+        }
+
+        return res;
+      }
+    }
+  } else {
+    return " ";
+  }
+}
+
 export default withTracker(() => {
 	Meteor.subscribe("Games").ready();
 	Meteor.subscribe("defaultList");
@@ -129,6 +162,7 @@ export default withTracker(() => {
 		myWords: DefaultList.find({
 			userId: Meteor.userId()
 		}).fetch(),
-		points: pointsTracker(game)
+		points: pointsTracker(game),
+		opponent: getOpponentName()
 	};
 })(ChallengePage2);
