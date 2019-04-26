@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import Quiz from "./Quiz.jsx";
-import { Container } from "semantic-ui-react";
 import { withTracker } from "meteor/react-meteor-data";
 import { Games } from "../lib/games.js";
 
