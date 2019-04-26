@@ -60,7 +60,7 @@ class ChallengePage2 extends React.Component {
 						<div />
 					)}
 				<Grid.Row>
-					<Header as="h2" textAlign="center">
+					<Header as="h1" textAlign="center">
 						<Header.Content>{this.props.status}</Header.Content>
 					</Header>
 				</Grid.Row>
@@ -75,10 +75,10 @@ class ChallengePage2 extends React.Component {
 				this.props.status == "You win!" ||
 				this.props.status == "You lost!" ||
 				this.props.status == "Tie" ? (
-					<ChallengeQuiz game={this.props.game} />
-				) : (
-					<div />
-				)}
+						<ChallengeQuiz game={this.props.game} />
+					) : (
+						<div />
+					)}
 			</Grid.Column>
 		);
 	}
