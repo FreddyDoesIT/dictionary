@@ -3,6 +3,15 @@ import { Mongo } from "meteor/mongo";
 import { check } from "meteor/check";
 import { allSearchedWords } from "./allSearchedWords.js";
 
+/* CodeReview <Yan>: First of all, great work and beautiful user interface of your project.*/
+// It has many features and I believe it can help students when they are struggle with remember learning english words.
+
+// There are small suggestions that you might want to consider. 
+// Maybe you can put the "my lists" and "chanllege" button out of the drop-down menu cause I don't know what to do after I save the word to my lists.
+
+// Hope this can help. Good luck!
+
+
 export const Questions = new Mongo.Collection("Questions");
 
 if (Meteor.isServer) {
